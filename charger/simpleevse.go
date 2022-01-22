@@ -33,18 +33,19 @@ func NewSimpleEVSEFromConfig(other map[string]interface{}) (api.Charger, error) 
 		Comset:   "8N1",
 		ID:       1,
 	}
+
 	if err := util.DecodeOther(other, &cc); err != nil {
 		return nil, err
 	}
 
-	return NewSimpleEVSE(cc.URI, cc.Device, cc.Comset, cc.Baudrate, true, cc.ID)
+	return NewSimpleEVSE(cc.URI, cc.Device, cc.Comset, cc.Baudrate, modbus.WireFormatFromRTU(cc.RTU), cc.ID)
 }
 
 // NewSimpleEVSE creates SimpleEVSE charger
-func NewSimpleEVSE(uri, device, comset string, baudrate int, rtu bool, slaveID uint8) (api.Charger, error) {
+func NewSimpleEVSE(uri, device, comset string, baudrate int, format modbus.WireFormat, slaveID uint8) (api.Charger, error) {
 	log := util.NewLogger("evse")
 
-	conn, err := modbus.NewConnection(uri, device, comset, baudrate, modbus.RtuFormat, slaveID)
+	conn, err := modbus.NewConnection(uri, device, comset, baudrate, format, slaveID)
 	if err != nil {
 		return nil, err
 	}
